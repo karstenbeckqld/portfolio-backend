@@ -3,10 +3,23 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const path = require('path');
 const port = process.env.PORT || 3000;
+
+const multer = require('multer');
+const multerStorage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, 'public/images');
+    },
+    filename: (req, file, callback) => {
+        callback(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({storage: multerStorage});
 
 const app = express();
 app.use('*', cors());
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -23,4 +36,10 @@ mongoose.connect(process.env.DATABASE_URL, {
 });
 
 const dataRouter = require('./routes/data');
-app.use('/data', dataRouter);
+app.use('/data', upload.single('image'), dataRouter);
+
+const authRouter = require('./routes/auth');
+app.use('/auth', authRouter);
+
+const userRouter = require('./routes/user');
+app.use('/user', userRouter);

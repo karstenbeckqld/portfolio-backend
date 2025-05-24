@@ -10,10 +10,6 @@ const itemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    imagePaths: {
-        type: Array,
-        required: true
-    },
     title: {
         type: String,
         required: true
