@@ -14,10 +14,8 @@
 require('dotenv').config();
 let crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const {v4: uuidv4} = require('uuid');
-const path = require('path');
 const sharp = require('sharp');
-const multer = require('multer');
+require('multer');
 const {unlink} = require("fs");
 
 // Class declaration
