@@ -37,7 +37,7 @@ router.post("/create", Utils.authenticateToken, async (req, res) => {
         });
     }
 
-    const {title, link, type, sortKey, description, showcasePath} = req.body;
+    const {title, link, type, sortKey, description} = req.body;
     console.log('Title from req.body: ', title);
 
     await Item.findOne({title})
@@ -85,8 +85,6 @@ router.put("/update/:id", Utils.authenticateToken, async (req, res) => {
     console.log("Received tech data type:", typeof req.body.tech);
     console.log("Received tech data value:", req.body.tech);
 
-    let showcaseFileName = null;
-
     if (!req.params.id) {
         return res.status(400).json({
             message: "No ID parameter provided.",
@@ -100,7 +98,7 @@ router.put("/update/:id", Utils.authenticateToken, async (req, res) => {
         });
     }
 
-    const {title, link, type, sortKey, description, showcasePath} = req.body;
+    const {title, link, type, sortKey, description} = req.body;
 
     const processedData = await processTechArrayAndFile(req);
 
