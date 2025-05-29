@@ -63,7 +63,7 @@ router.get('/:id', async (req, res) => {
         });
 });
 
-// POST - Create new User (Receive Form Data from GET('/signup'))----------------------------------------------------------
+// POST - Create new User (Receive Form Data from GET('/'))----------------------------------------------------------
 // Endpoint: /user
 // The below post request receives data from the input form and creates a new user.
 router.post('/', async (req, res) => {
@@ -117,54 +117,53 @@ router.post('/', async (req, res) => {
 // To update a user, we use a put request as these are usually used for updating database entries.
 router.put('/:id', Utils.authenticateToken, async (req, res) => {
 
-        console.log('Received data: ', req.body);
-        console.log('Received file: ', req.file);
+    console.log('Received data: ', req.body);
+    console.log('Received file: ', req.file);
 
 
-        // Check if the request body is empty and if yes, return here (same as above).
-        if (!req.body) {
-            console.log('No data in request.');
-            return res.status(400).json({
-                message: "Empty body received."
-            });
-        }
-
-        let avatarFileName = null;
-
-        if (req.file) {
-
-            avatarFileName = await Utils.processImage(req.file.filename, 200, 200);
-
-            await updateUser({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                avatar: avatarFileName,
-                bio: req.body.bio
-            });
-
-        } else {
-            await updateUser(req.body);
-            console.log('User updated');
-        }
-
-        async function updateUser(update) {
-            User.findByIdAndUpdate(req.params.id, update, {new: true})
-                .then((user) => {
-                    res.json(user);
-                })
-                .catch((err) => {
-                    console.log('User not updated.', err.message);
-                    const errors = Utils.handleErrors(err);
-                    res.status(500).json({
-                        message: 'User not updated.',
-                        errors: errors,
-                        error: err
-                    });
-                });
-        }
+    // Check if the request body is empty and if yes, return here (same as above).
+    if (!req.body) {
+        console.log('No data in request.');
+        return res.status(400).json({
+            message: "Empty body received."
+        });
     }
-);
+
+    let avatarFileName = null;
+
+    if (req.file) {
+
+        avatarFileName = await Utils.processImage(req.file.filename, 200, 200);
+
+        await updateUser({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            avatar: avatarFileName,
+            bio: req.body.bio
+        });
+
+    } else {
+        await updateUser(req.body);
+        console.log('User updated');
+    }
+
+    async function updateUser(update) {
+        User.findByIdAndUpdate(req.params.id, update, {new: true})
+            .then((user) => {
+                res.json(user);
+            })
+            .catch((err) => {
+                console.log('User not updated.', err.message);
+                const errors = Utils.handleErrors(err);
+                res.status(500).json({
+                    message: 'User not updated.',
+                    errors: errors,
+                    error: err
+                });
+            });
+    }
+});
 
 // DELETE - Delete user with id ----------------------------------------------------------------------------------------
 // Endpoint: /user/:id
@@ -190,15 +189,15 @@ router.delete('/:id', Utils.authenticateToken, async (req, res) => {
         .then((result) => {
             if (result) {
                 // A user with the specified ID was found and deleted
-                console.log(`User with ID: ${req.params.id} deleted.`);
+                console.log(`User with ID: ${ req.params.id } deleted.`);
                 res.json({
-                    message: `User with ID: ${req.params.id} deleted.`,
+                    message: `User with ID: ${ req.params.id } deleted.`,
                 });
             } else {
                 // No user with the specified ID was found
-                console.log(`User with ID: ${req.params.id} not found.`);
+                console.log(`User with ID: ${ req.params.id } not found.`);
                 res.status(404).json({
-                    message: `User with ID: ${req.params.id} not found.`,
+                    message: `User with ID: ${ req.params.id } not found.`,
                 });
             }
         })

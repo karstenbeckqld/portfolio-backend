@@ -104,12 +104,14 @@ class Utils {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
         if (token == null) {
-            res.redirect('/auth/signin');
+            return res.redirect('/auth/signin');
         }
 
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
             if (err) {
-                res.redirect('/auth/signin');
+                return res.status(401).json({
+                    message: 'Authentication failed: Invalid or expired token.',
+                });
             }
             req.user = user;
             next();

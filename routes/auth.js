@@ -5,6 +5,9 @@ const express = require('express');
 const router = express.Router();
 const Utils = require('./../Utils');
 
+// POST - Signin a user
+// Endpoint: /auth/signin
+// Logs in a user that's been registered in the database.
 router.post('/signin', async (req, res) => {
 
     console.log('From auth.js: ', req.body);
@@ -40,12 +43,10 @@ router.post('/signin', async (req, res) => {
             // Remove password from userObject
             tokenPayload.password = undefined;
             user.password = '';
+            console.log(user);
 
             // Once the token is generated, we return a response with the user object and the token, so that we can
-            // verify a successful login in Postman. Where this response will lead in the final website is yet to be
-            // determined. That depends on how we want to treat user login in general. It could just log in the user and
-            // return to the homepage, unlocking access to the restricted aea, or redirect the user directly to the
-            // restricted area.
+            // verify a successful login in Postman. The front end can then use this token to verify logged-in users.
             return res.json({
                 user: user,
                 accessToken: token
@@ -53,7 +54,7 @@ router.post('/signin', async (req, res) => {
         })
 
         // If an error occurs, the user could not get verified, and we return an errors json object displaying the
-        // produced errors, plus a 400 status code. In the finished website, this will redirect back to the login form
+        // produced errors, plus a 400 status code. In the front end, this will redirect back to the login form
         // and display errors accordingly.
         .catch((err) => {
             console.log('Cannot log in user: ' + err.message);
