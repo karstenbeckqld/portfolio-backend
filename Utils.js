@@ -92,7 +92,7 @@ class Utils {
         return jwt.sign(userObject, process.env.ACCESS_TOKEN_SECRET, {
 
             // Now we set the expiry for this token to 30 minutes.
-            expiresIn: '360min'
+            expiresIn: '5min'
         });
     }
 

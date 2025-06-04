@@ -66,7 +66,7 @@ router.get('/:id', async (req, res) => {
 // POST - Create new User (Receive Form Data from GET('/'))----------------------------------------------------------
 // Endpoint: /user
 // The below post request receives data from the input form and creates a new user.
-router.post('/', async (req, res) => {
+router.post('/', Utils.authenticateToken, async (req, res) => {
 
     // Check if the request body is empty and if yes, return here.
     if (!req.body) {

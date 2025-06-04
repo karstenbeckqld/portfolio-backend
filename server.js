@@ -3,37 +3,74 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-// const path = require('path');
+const AWS = require('aws-sdk');
+const multerS3 = require('multer-s3');
+const path = require('path');
 const port = process.env.PORT || 3000;
-
 const multer = require('multer');
 
-// Configure multer storage
-const multerStorage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, 'public/images');
-    },
-    filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        callback(null, `${uniqueSuffix}-${file.originalname}`);
-    }
+// Configure AWS S3
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
 });
 
-// File filter for images
-const fileFilter = (req, file, callback) => {
-    if (file.mimetype.startsWith("image/")) {
-        callback(null, true);
-    } else {
-        callback(new Error("File must be an image"), false);
-    }
-};
+// Verify S3 client
+console.log("S3 client initialized:", !!s3.config.credentials);
 
-// Multer middleware
+// Configure multer storage
 const upload = multer({
-    storage: multerStorage,
-    fileFilter,
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.S3_BUCKET_NAME,
+        //acl: 'public-read', // Optional: for public access
+        metadata: (req, file, cb) => {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: (req, file, cb) => {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+            cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
+        },
+    }),
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|gif/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Only images are allowed!'));
+    },
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
+
+
+// const multerStorage = multer.diskStorage({
+//     destination: (req, file, callback) => {
+//         callback(null, 'public/images');
+//     },
+//     filename: (req, file, callback) => {
+//         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//         callback(null, `${uniqueSuffix}-${file.originalname}`);
+//     }
+// });
+//
+// // File filter for images
+// const fileFilter = (req, file, callback) => {
+//     if (file.mimetype.startsWith("image/")) {
+//         callback(null, true);
+//     } else {
+//         callback(new Error("File must be an image"), false);
+//     }
+// };
+//
+// // Multer middleware
+// const upload = multer({
+//     storage: multerStorage,
+//     fileFilter,
+//     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+// });
 
 //const upload = multer({storage: multerStorage});
 
