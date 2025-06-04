@@ -185,7 +185,7 @@ const processTechArrayAndFile = async (req) => {
             console.log("No file uploaded:", req.file);
             throw new Error("Image file is required");
         }
-        fileName = req.file.location; // S3 URL, e.g., https://kb-portfolio-images.s3.us-east-1.amazonaws.com/1747803440330.jpg
+        fileName = req.file.location; // S3 URL
         console.log("S3 image URL:", fileName);
 
         // Parse tech JSON
@@ -194,6 +194,7 @@ const processTechArrayAndFile = async (req) => {
             filteredTech = filteredTech.filter(item => item && item !== '');
             console.log("Filtered technologies array:", filteredTech);
         } catch (err) {
+            console.error("Invalid tech JSON format: ", err);
             throw new Error("Invalid tech JSON format");
         }
 
